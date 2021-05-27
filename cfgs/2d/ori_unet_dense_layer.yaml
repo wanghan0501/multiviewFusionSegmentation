@@ -1,0 +1,102 @@
+dataset: brain_radiology
+task: segmentation
+
+data:
+  data_root: /root/workspace/DeepRadiology/target_segmentation/
+  mask_dict:
+    1: [ "GTVtb" ]
+
+  # the csv path of train dataset. Note: the csv file has two columns without head: ['sample_name', 'tumor_type']
+  train_sample_csv: [ 'records/胶质恶性细胞瘤/new_paper/train_front_records.csv' ]
+  # the csv path of eval dataset. Note: the csv file has two columns without head: ['sample_name', 'tumor_type']
+  eval_sample_csv: [ 'records/胶质恶性细胞瘤/new_paper/eval_front_records.csv' ]
+  image_width: 512
+  image_height: 512
+  color_channels: 1
+  num_classes: 2
+
+train:
+  batch_size: 8
+  num_workers: 6
+  pin_memory: true
+  aug_trans:
+    trans_seq: [ filter_and_normalize_by_WL, arr2image, center_crop, random_horizontal_flip, random_sized, random_rotate, to_tensor ]
+    WL:
+      W: 250
+      L: 50
+    center_crop:
+      size: [ 288, 288 ]
+    random_sized:
+      size: [ 288, 288 ]
+      scale_min: 0.75
+      scale_max: 1.25
+    random_rotate:
+      degree: 10
+
+eval:
+  batch_size: 8
+  num_workers: 6
+  pin_memory: true
+  aug_trans:
+    trans_seq: [ filter_and_normalize_by_WL, arr2image, center_crop, to_tensor ]
+    WL:
+      W: 250
+      L: 50
+    center_crop:
+      size: [ 288, 288 ]
+
+logging:
+  use_logging: true
+  ckpt_path: ckpts/new_paper/segment/
+  use_tensorboard: true
+  run_path: runs/new_paper/segment/
+  logging_dir: ori_unet_dense_decoder
+
+optim:
+  num_epochs: 100
+  # support optim method: [sgd, adam]
+  optim_method: sgd
+  sgd:
+    base_lr: 1e-2
+    momentum: 0.9
+    weight_decay: 1e-4
+    nesterov: false
+  adam:
+    base_lr: 1e-3
+    betas: [ 0.9, 0.999 ]
+    weight_decay: 1e-4
+    amsgrad: false
+  use_lr_decay: true
+  # support lr_decay method: [cosine]
+  lr_decay_method: cosine
+  cosine:
+    eta_min: 1e-5
+    T_max: 200
+  exponent:
+    gamma: 0.99
+  warmup:
+    multiplier: 10
+    total_epoch: 15
+    after_scheduler: cosine
+
+criterion:
+  # support criterion method: [cross_entropy_loss]
+  criterion_method: cross_entropy_loss
+  cross_entropy_loss:
+    use_weight: false
+    weight: [ 1, 3 ]
+
+
+network:
+  net_name: unet
+  backbone: resnet50
+  norm_type: batchnorm
+  use_pretrained: true
+  # support pretrained model name: [densenet121_dilated8, dpn68_dilated8]
+  pretrained_path:
+    densenet121: pretrained/densenet121.pth
+    dpn68: pretrained/dpn68.pth
+    resnet50: pretrained/resnet50.pth
+    vgg16bn: pretrained/vgg16_bn.pth
+  seed: 22
+  num_gpus: None

@@ -1,0 +1,93 @@
+dataset: brain_radiology
+task: segmentation3d
+
+data:
+  data_root: /root/workspace/DeepRadiology/target_segmentation/3d/npy_data/
+  mask_dict:
+    1: [ "GTVtb" ]
+
+  # the csv path of train dataset. Note: the csv file has two columns without head: ['sample_name', 'tumor_type']
+  train_sample_csv: [ '3d/records/3d_train_samples.csv' ]
+  # the csv path of eval dataset. Note: the csv file has two columns without head: ['sample_name', 'tumor_type']
+  eval_sample_csv: [ '3d/records/3d_eval_samples.csv' ]
+  color_channels: 1
+  num_classes: 2
+
+train:
+  batch_size: 8
+  num_workers: 6
+  pin_memory: true
+  aug_trans:
+    trans_seq: [ random_center_crop, resize, normalize, to_tensor ]
+    resize:
+      size: [ 24, 288, 288 ]
+    normalize:
+      mean: 0.5
+      std: 0.5
+eval:
+  batch_size: 8
+  num_workers: 6
+  pin_memory: true
+  aug_trans:
+    trans_seq: [ resize, normalize, to_tensor ]
+    resize:
+      size: [ 24, 288, 288 ]
+    normalize:
+      mean: 0.5
+      std: 0.5
+
+logging:
+  use_logging: true
+  ckpt_path: ckpts/new_paper/seg3d/
+  use_tensorboard: true
+  run_path: runs/new_paper/seg3d/
+  logging_dir: voxresnet
+
+optim:
+  num_epochs: 100
+  # support optim method: [sgd, adam, adamw]
+  optim_method: sgd
+  sgd:
+    base_lr: 1e-2
+    momentum: 0.9
+    weight_decay: 5e-4
+    nesterov: false
+  adam:
+    base_lr: 1e-3
+    betas: [ 0.5, 0.999 ]
+    weight_decay: 5e-4
+    amsgrad: false
+  adamw:
+    base_lr: 1e-3
+    betas: [ 0.5, 0.999 ]
+    weight_decay: 5e-4
+    amsgrad: false
+  use_lr_decay: false
+  # support lr_decay method: [cosine]
+  lr_decay_method: cosine
+  cosine:
+    eta_min: 1e-5
+    T_max: 200
+  exponent:
+    gamma: 0.99
+  warmup:
+    multiplier: 10
+    total_epoch: 15
+    after_scheduler: cosine
+
+criterion:
+  # support criterion method: [cross_entropy_loss]
+  criterion_method: cross_entropy_loss
+  cross_entropy_loss:
+    use_weight: false
+    weight: [ 1, 3 ]
+
+network:
+  net_name: voxresnet
+  backbone: resnet3d10
+  norm_type: batchnorm
+  use_pretrained: true
+  pretrained_path:
+    resnet3d10: pretrained/resnet3d10.pth
+  seed: 22
+  num_gpus: None
