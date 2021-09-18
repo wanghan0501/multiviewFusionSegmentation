@@ -69,5 +69,11 @@ Due to privacy restrictions, we only upload part of the test data used in the pa
 If you use our code, please cite:
 
 ```
-
+@article{han2021multi,
+  title={Multi-view fusion segmentation for brain glioma on CT images},
+  author={Han Wang, Junjie Hu, Ying Song, Lei Zhang, Sen Bai, Zhang Yi},
+  journal={Applied Intelligence},
+  year={2021},
+  doi={10.1007/s10489-021-02784-7}
+}
 ```
