@@ -1,7 +1,7 @@
 # Multi-view Fusion Segmentation for Brain Glioma on CT images
 
 ## Description
-This repository is the implementation of the paper "Multi-view Fusion Segmentation for Brain Glioma on CT images". 
+This repository is the implementation of the paper "[Multi-view Fusion Segmentation for Brain Glioma on CT images](https://link.springer.com/10.1007/s10489-021-02784-7)". 
 
 
 ## Contents
